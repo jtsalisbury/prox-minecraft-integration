@@ -1,0 +1,16 @@
+main: com.cbot.integration.Main
+name: CbotIntegration
+version: 1.0
+author: jtsalisbury
+description: Provides integration with cbot
+api-version: 1.16
+commands:
+  settoken:
+    description: Set the cbot authorization tokens
+    usage: /settoken [token]
+    permission: cbot.manage
+    permission-message: You don't have the cbot.manage permission.
+permissions:
+  cbot.manage:
+    description: Allows for management of cbot
+    default: op
