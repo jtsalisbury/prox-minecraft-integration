@@ -1,4 +1,4 @@
-package com.cbot.integration;
+package com.prox.integration;
 
 
 import org.bukkit.entity.Player;

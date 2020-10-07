@@ -1,4 +1,4 @@
-package com.cbot.integration;
+package com.prox.integration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -25,7 +25,7 @@ public class Main extends JavaPlugin {
         // Register message listener
         Bukkit.getServer().getPluginManager().registerEvents(eventListener, this);
 
-        log("cbot-Integration loaded!");
+        log("Prox Integration loaded!");
     }
 
     @Override

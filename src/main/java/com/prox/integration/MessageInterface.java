@@ -1,4 +1,4 @@
-package com.cbot.integration;
+package com.prox.integration;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -25,7 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import javax.net.ssl.*;
 
 public class MessageInterface {
-    private static String CONNECTION_ADDRESS = "https://damp-coast-58076.herokuapp.com/";
+    private static String CONNECTION_ADDRESS = "https://discord-prox.herokuapp.com/";
     private boolean connected = false;
     private boolean reconnect = true;
     private Socket conn = null;
