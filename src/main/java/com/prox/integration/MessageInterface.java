@@ -179,22 +179,24 @@ public class MessageInterface {
                     // Attempt to read the sender and content
                     String sender = null;
                     String content = null;
+                    String guild = null;
 
                     // Attempt to get the sender and content from the message we received
                     try {
                         sender = obj.get("sender").toString();
                         content = obj.get("content").toString();
+                        guild = obj.get("guild").toString();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                     // Invalid payload
-                    if (sender == null || content == null) {
+                    if (sender == null || content == null || guild == null) {
                         return;
                     }
 
                     // Send a message to all players
-                    Bukkit.broadcastMessage("[Discord] " + sender + ": " + content);
+                    Bukkit.broadcastMessage("[" + guild + "] " + sender + ": " + content);
                 }
             });
 
