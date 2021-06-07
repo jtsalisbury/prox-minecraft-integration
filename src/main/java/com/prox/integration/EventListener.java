@@ -5,8 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
 
 import java.util.logging.Logger;
 
@@ -52,6 +54,18 @@ public class EventListener implements Listener {
         }
 
         msgInterface.sendMessage(ply.getDisplayName(), message);
+    }
+
+    @EventHandler
+    public void onPlayerDeathEvent(PlayerDeathEvent ev) {
+        String message = ev.getDeathMessage();
+
+        // Note: Message interface will queue messages until we reconnect, but I don't want to spam discord with chat messages if this happens
+        if (!msgInterface.getConnected()) {
+            return;
+        }
+
+        msgInterface.sendMessage("Notification", message);
     }
 
     // Event for when the player joins
