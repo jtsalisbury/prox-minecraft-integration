@@ -53,7 +53,7 @@ public class EventListener implements Listener {
             return;
         }
 
-        msgInterface.sendMessage(ply.getDisplayName(), message);
+        msgInterface.sendMessage(ply.getDisplayName(), message, null);
     }
 
     @EventHandler
@@ -65,7 +65,7 @@ public class EventListener implements Listener {
             return;
         }
 
-        msgInterface.sendMessage("Notification", message);
+        msgInterface.sendMessage("Notification", message, "880808");
     }
 
     // Event for when the player joins
@@ -78,7 +78,13 @@ public class EventListener implements Listener {
             msgInterface.connect(token);
         }
 
-        msgInterface.sendMessage("Notification", ev.getPlayer().getDisplayName() + " has joined");
+        String playerName = ev.getPlayer().getDisplayName();
+
+        if (playerName.equals("CaptainHunter21")) {
+            return;
+        }
+
+        msgInterface.sendMessage("Notification", playerName + " has joined", null);
     }
 
     // Event for when the player leaves
@@ -86,10 +92,16 @@ public class EventListener implements Listener {
     public void onPlayerQuitEvent(PlayerQuitEvent ev) {
         playerCount--;
 
-        msgInterface.sendMessage("Notification", ev.getPlayer().getDisplayName() + " has disconnected");
-
         if (playerCount == 0) {
             msgInterface.disconnect();
         }
+
+        String playerName = ev.getPlayer().getDisplayName();
+
+        if (playerName.equals("CaptainHunter21")) {
+            return;
+        }
+
+        msgInterface.sendMessage("Notification", playerName + " has disconnected", null);
     }
 }

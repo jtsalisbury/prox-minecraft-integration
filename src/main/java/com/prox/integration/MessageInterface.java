@@ -141,7 +141,7 @@ public class MessageInterface {
                     while (!outgoingMessages.isEmpty()) {
                         String[] messageData = outgoingMessages.peek();
 
-                        doSendMessage(messageData[0], messageData[1]);
+                        doSendMessage(messageData[0], messageData[1], messageData[2]);
                         outgoingMessages.poll();
                     }
 
@@ -214,11 +214,20 @@ public class MessageInterface {
     }
 
     // Helper method to actually senda  message
-    private void doSendMessage(String sender, String message) {
+    private void doSendMessage(String sender, String message, String color) {
         JSONObject obj = new JSONObject();
         try {
             obj.put("sender", sender);
             obj.put("content", message);
+
+            if (sender != "Notification" && sender != "console") {
+                obj.put("emoji", "minecraft");
+            }
+
+            if (color != null) {
+                obj.put("color", color);
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -227,15 +236,15 @@ public class MessageInterface {
     }
 
     // Send a message to discord
-    public void sendMessage(String sender, String message) {
+    public void sendMessage(String sender, String message, String color) {
         // If we aren't connected, throw it in the queue to send
         if (!this.getConnected()) {
 
-            outgoingMessages.offer(new String[] {sender, message});
+            outgoingMessages.offer(new String[] {sender, message, color});
             return;
         }
 
-        doSendMessage(sender, message);
+        doSendMessage(sender, message, color);
     }
 
     // Returns the connection state
