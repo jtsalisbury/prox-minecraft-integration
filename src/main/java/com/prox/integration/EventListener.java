@@ -92,16 +92,14 @@ public class EventListener implements Listener {
     public void onPlayerQuitEvent(PlayerQuitEvent ev) {
         playerCount--;
 
+        String playerName = ev.getPlayer().getDisplayName();
+
+        if (!playerName.equals("CaptainHunter21")) {
+            msgInterface.sendMessage("Notification", playerName + " has disconnected", null);
+        }
+
         if (playerCount == 0) {
             msgInterface.disconnect();
         }
-
-        String playerName = ev.getPlayer().getDisplayName();
-
-        if (playerName.equals("CaptainHunter21")) {
-            return;
-        }
-
-        msgInterface.sendMessage("Notification", playerName + " has disconnected", null);
     }
 }
