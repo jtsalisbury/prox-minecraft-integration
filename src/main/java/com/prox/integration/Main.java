@@ -30,7 +30,10 @@ public class Main extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() { }
+    public void onDisable() {
+        log("Prox Integration disabled");
+        eventListener.getMessageInterface().disconnect();
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

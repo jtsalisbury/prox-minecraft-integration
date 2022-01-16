@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 public class MessageInterface {
     private static String CONNECTION_ADDRESS = "https://discord-prox.herokuapp.com/";
-    private boolean reconnect = true;
     private Socket conn = null;
     private Logger logger = null;
     private Queue<String[]> outgoingMessages = new ArrayDeque<String[]>();
@@ -114,21 +113,12 @@ public class MessageInterface {
             });
 
             // Server error, send a notificaiton and attempt to reconnect
-            /*conn.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            conn.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
-                    log("Server error - unable to connect, will attempt to reconnect in 30 seconds...");
-                    disconnect(); // perform disconnect, prevent reconnect in that
-
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            conn.connect();
-                        }
-                    }, 30 * 1000);
+                    log("Connection error: " + objects[0]);
                 }
-            });*/
+            });
 
             // Attempted connection but not authorized
             conn.on("unauthorized", new Emitter.Listener() {
@@ -146,7 +136,6 @@ public class MessageInterface {
                 @Override
                 public void call(Object... objects) {
                     log("Authenticated!");
-                    reconnect = true; // we should try to reconnect now
 
                     // Dequeue all our standing messages
                     while (!outgoingMessages.isEmpty()) {
@@ -215,8 +204,6 @@ public class MessageInterface {
     }
 
     public void disconnect() {
-        this.reconnect = false;
-
         conn.disconnect();
     }
 

@@ -18,7 +18,7 @@ public class Dump extends BaseCommand {
         logger.info("Printing debug information for Prox");
 
         Queue<String[]> msgQueue = eventListener.getMessageInterface().getMessageQueue();
-        logger.info("Messages waiting to be sent: " + msgQueue);
+        logger.info("Messages waiting to be sent: " + msgQueue.size());
 
         logger.info("Connection status: " + (eventListener.getMessageInterface().isConnected() ? "connected" : "not connected"));
 

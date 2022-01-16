@@ -10,6 +10,25 @@ commands:
     usage: /settoken [token]
     permission: prox.manage
     permission-message: You don't have the prox.manage permission.
+
+  clearqueue:
+    description: Clears any queued messages
+    usage: /clearqueue
+    permission: prox.manage
+    permission-message: You don't have the prox.manage permission.
+
+  reconnect:
+    description: Disconnects the current socket and attempts to reconnect
+    usage: /reconnect
+    permission: prox.manage
+    permission-message: You don't have the prox.manage permission.
+
+  dump:
+    description: Prints active debugging information to the server console
+    usage: /dump
+    permission: prox.manage
+    permission-message: You don't have the prox.manage permission.
+
 permissions:
   prox.manage:
     description: Allows for management of Prox

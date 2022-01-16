@@ -16,8 +16,11 @@ import java.util.logging.Logger;
 public class EventListener implements Listener {
     private MessageInterface msgInterface = null;
     private String token = null;
+    private Logger logger = null;
+
 
     public EventListener(Logger logger) {
+        this.logger = logger;
         this.msgInterface = new MessageInterface(logger);
     }
 
@@ -106,7 +109,8 @@ public class EventListener implements Listener {
             msgInterface.sendMessage("Notification", playerName + " has disconnected", null);
         }
 
-        if (getNumPlayers() == 0) {
+        logger.info("Player disconnected, num left: " + (getNumPlayers() - 1));
+        if ((getNumPlayers() - 1) == 0) {
             msgInterface.disconnect();
         }
     }
