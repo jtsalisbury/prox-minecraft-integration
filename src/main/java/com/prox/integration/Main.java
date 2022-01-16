@@ -1,10 +1,11 @@
 package com.prox.integration;
 
+import com.prox.integration.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-
+import java.util.HashMap;
 
 public class Main extends JavaPlugin {
     private final SettingsManager settingsMgr = new SettingsManager(getLogger(), getDataFolder().getPath());
@@ -33,27 +34,16 @@ public class Main extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Verify command
-        if (!command.getName().equalsIgnoreCase("settoken")) {
+        HashMap<String, BaseCommand> commands = new HashMap<>();
+        commands.put("settoken", new SetToken(getLogger()));
+        commands.put("clearqueue", new ClearQueue(getLogger()));
+        commands.put("reconnect", new Reconnect(getLogger()));
+        commands.put("dump", new Dump(getLogger()));
+
+        if (!commands.containsKey(command.getName())) {
             return false;
         }
 
-        // Verify args
-        if (args.length != 1) {
-            sender.sendMessage("Usage /settoken [token]");
-            return false;
-        }
-
-        // Let them know we're going to overwrite existing stuff
-        if (settingsMgr.get("authorization") != "") {
-            sender.sendMessage("Authorization has already been created - this will overwrite the existing one");
-        }
-
-        // Save the authorization token and update the event listener
-        settingsMgr.set("authorization", args[0]);
-        eventListener.setToken(args[0]);
-
-        sender.sendMessage("Authorization set!");
-        return true;
+        return commands.get(command.getName()).run(sender, command, label, args, settingsMgr, eventListener);
     }
 }

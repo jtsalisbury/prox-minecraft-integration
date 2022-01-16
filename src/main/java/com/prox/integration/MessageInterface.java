@@ -4,29 +4,23 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import okhttp3.OkHttpClient;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bukkit.Bukkit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.net.ssl.*;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Logger;
-
-import java.net.URISyntaxException;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
-import javax.net.ssl.*;
 
 public class MessageInterface {
     private static String CONNECTION_ADDRESS = "https://discord-prox.herokuapp.com/";
-    private boolean connected = false;
     private boolean reconnect = true;
     private Socket conn = null;
     private Logger logger = null;
@@ -47,9 +41,22 @@ public class MessageInterface {
         return result;
     }
 
+    public Queue<String[]> getMessageQueue() {
+        return outgoingMessages;
+    }
+
+    public Boolean isConnected() {
+        return conn != null && conn.connected();
+    }
+
     // Try and connect to
     public void connect(String token) {
         try {
+            if (conn != null) {
+                conn.disconnect();
+                conn = null;
+            }
+
             // Setup a new ssl context
             SSLContext mySSLContext = SSLContext.getInstance("TLS");
             X509TrustManager trustManager =  new X509TrustManager() {
@@ -84,9 +91,10 @@ public class MessageInterface {
             opts.webSocketFactory = okHttpClient;
             opts.upgrade = false;
             opts.transports = new String[] {"websocket"};
+            opts.reconnection = true;
 
             log("Attempting to connect...");
-            conn = IO.socket(CONNECTION_ADDRESS);
+            conn = IO.socket(CONNECTION_ADDRESS, opts);
 
             // Connection event, here we should try and authorize
             conn.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -106,11 +114,11 @@ public class MessageInterface {
             });
 
             // Server error, send a notificaiton and attempt to reconnect
-            conn.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            /*conn.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
                     log("Server error - unable to connect, will attempt to reconnect in 30 seconds...");
-                    conn.disconnect();
+                    disconnect(); // perform disconnect, prevent reconnect in that
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -120,7 +128,7 @@ public class MessageInterface {
                         }
                     }, 30 * 1000);
                 }
-            });
+            });*/
 
             // Attempted connection but not authorized
             conn.on("unauthorized", new Emitter.Listener() {
@@ -128,6 +136,8 @@ public class MessageInterface {
                 public void call(Object... objects) {
                     log("Failed to authorize! Are you sure the token is correct and the integration exists?");
                     log("Authorization error: " + objects[0]);
+
+                    disconnect();
                 }
             });
 
@@ -136,6 +146,7 @@ public class MessageInterface {
                 @Override
                 public void call(Object... objects) {
                     log("Authenticated!");
+                    reconnect = true; // we should try to reconnect now
 
                     // Dequeue all our standing messages
                     while (!outgoingMessages.isEmpty()) {
@@ -144,8 +155,6 @@ public class MessageInterface {
                         doSendMessage(messageData[0], messageData[1], messageData[2]);
                         outgoingMessages.poll();
                     }
-
-                    connected = true;
                 }
             });
 
@@ -154,11 +163,9 @@ public class MessageInterface {
                 @Override
                 public void call(Object... objects) {
                     log("Disconnected");
-
-                    connected = false;
-
+                    
                     // Only reconnect when we expect to connect (ie not during plugin shutdown)
-                    if (reconnect) {
+                    /*if (reconnect) {
                         log("Attempting reconnect in 30 seconds...");
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
@@ -167,7 +174,7 @@ public class MessageInterface {
                                 conn.connect();
                             }
                         }, 30 * 1000);
-                    }
+                    }*/
                 }
             });
 
@@ -238,8 +245,7 @@ public class MessageInterface {
     // Send a message to discord
     public void sendMessage(String sender, String message, String color) {
         // If we aren't connected, throw it in the queue to send
-        if (!this.getConnected()) {
-
+        if (!this.isConnected()) {
             outgoingMessages.offer(new String[] {sender, message, color});
             return;
         }
@@ -247,8 +253,4 @@ public class MessageInterface {
         doSendMessage(sender, message, color);
     }
 
-    // Returns the connection state
-    public boolean getConnected() {
-        return connected;
-    }
 }

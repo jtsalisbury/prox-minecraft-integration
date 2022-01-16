@@ -1,6 +1,7 @@
 package com.prox.integration;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,10 +16,13 @@ import java.util.logging.Logger;
 public class EventListener implements Listener {
     private MessageInterface msgInterface = null;
     private String token = null;
-    private int playerCount = 0;
 
     public EventListener(Logger logger) {
         this.msgInterface = new MessageInterface(logger);
+    }
+
+    Integer getNumPlayers() {
+        return Bukkit.getOnlinePlayers().size();
     }
 
     // Set the authorization token for use with the socket
@@ -30,16 +34,24 @@ public class EventListener implements Listener {
         this.token = token;
 
         // No use in connecting if no players are connected
-        if (playerCount == 0) {
+        if (getNumPlayers() == 0) {
             return;
         }
 
         // Token was reset - disconnect and reconnect
-        if (msgInterface.getConnected()) {
+        if (msgInterface.isConnected()) {
             msgInterface.disconnect();
         }
 
         msgInterface.connect(token);
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public MessageInterface getMessageInterface() {
+        return msgInterface;
     }
 
     // Attempt to send a message to discord on player chat
@@ -49,7 +61,7 @@ public class EventListener implements Listener {
         String message = ev.getMessage();
 
         // Note: Message interface will queue messages until we reconnect, but I don't want to spam discord with chat messages if this happens
-        if (!msgInterface.getConnected()) {
+        if (!msgInterface.isConnected()) {
             return;
         }
 
@@ -61,7 +73,7 @@ public class EventListener implements Listener {
         String message = ev.getDeathMessage();
 
         // Note: Message interface will queue messages until we reconnect, but I don't want to spam discord with chat messages if this happens
-        if (!msgInterface.getConnected()) {
+        if (!msgInterface.isConnected()) {
             return;
         }
 
@@ -71,10 +83,8 @@ public class EventListener implements Listener {
     // Event for when the player joins
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent ev) {
-        playerCount++;
-
         // First player joined + token is valid
-        if (playerCount == 1 && this.token != null) {
+        if (getNumPlayers() == 1 && !msgInterface.isConnected()) {
             msgInterface.connect(token);
         }
 
@@ -90,15 +100,13 @@ public class EventListener implements Listener {
     // Event for when the player leaves
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent ev) {
-        playerCount--;
-
         String playerName = ev.getPlayer().getDisplayName();
 
         if (!playerName.equals("CaptainHunter21")) {
             msgInterface.sendMessage("Notification", playerName + " has disconnected", null);
         }
 
-        if (playerCount == 0) {
+        if (getNumPlayers() == 0) {
             msgInterface.disconnect();
         }
     }

@@ -9,8 +9,5 @@
         <module name="ProxIntegration" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="cbot-minecraft-integration" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
