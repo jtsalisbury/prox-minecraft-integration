@@ -204,7 +204,9 @@ public class MessageInterface {
     }
 
     public void disconnect() {
-        conn.disconnect();
+        if (this.conn != null) {
+            conn.disconnect();
+        }
     }
 
     // Helper method to actually senda  message

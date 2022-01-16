@@ -1,9 +1,9 @@
 main: com.prox.integration.Main
 name: ProxIntegration
-version: 1.0
+version: 1.6
 author: jtsalisbury
 description: Provides integration with Prox
-api-version: 1.16
+api-version: 1.18
 commands:
   settoken:
     description: Set the Prox authorization tokens
